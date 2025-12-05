@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 { color: #333; }
+        .auth-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        .btn-primary:hover { background: #0056b3; }
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        .btn-danger:hover { background: #c82333; }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-secondary:hover { background: #545b62; }
+        .section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .section h2 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .tab {
+            padding: 10px 20px;
+            border: 1px solid #ddd;
+            background: #f8f9fa;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .tab.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        .post {
+            border: 1px solid #eee;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+        .post h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .post-meta {
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+        .post-content {
+            color: #444;
+        }
+        .post-actions {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+        .hidden { display: none !important; }
+        .message {
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        #loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Blog</h1>
+        <div class="auth-status">
+            <span id="user-info"></span>
+            <button id="logout-btn" class="btn-secondary hidden" onclick="logout()">Logout</button>
+        </div>
+    </header>
+
+    <div id="message" class="message hidden"></div>
+
+    <div id="auth-section" class="section">
+        <div class="tabs">
+            <div class="tab active" onclick="showAuthTab('login')">Login</div>
+            <div class="tab" onclick="showAuthTab('register')">Register</div>
+        </div>
+
+        <form id="login-form" onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label for="login-username">Username</label>
+                <input type="text" id="login-username" required>
+            </div>
+            <div class="form-group">
+                <label for="login-password">Password</label>
+                <input type="password" id="login-password" required>
+            </div>
+            <button type="submit" class="btn-primary">Login</button>
+        </form>
+
+        <form id="register-form" class="hidden" onsubmit="handleRegister(event)">
+            <div class="form-group">
+                <label for="register-username">Username</label>
+                <input type="text" id="register-username" required>
+            </div>
+            <div class="form-group">
+                <label for="register-email">Email</label>
+                <input type="email" id="register-email" required>
+            </div>
+            <div class="form-group">
+                <label for="register-password">Password</label>
+                <input type="password" id="register-password" required>
+            </div>
+            <button type="submit" class="btn-primary">Register</button>
+        </form>
+    </div>
+
+    <div id="create-post-section" class="section hidden">
+        <h2>Create Post</h2>
+        <form id="create-post-form" onsubmit="handleCreatePost(event)">
+            <div class="form-group">
+                <label for="post-title">Title</label>
+                <input type="text" id="post-title" required>
+            </div>
+            <div class="form-group">
+                <label for="post-content">Content</label>
+                <textarea id="post-content" required></textarea>
+            </div>
+            <button type="submit" class="btn-primary">Create Post</button>
+        </form>
+    </div>
+
+    <div id="edit-post-section" class="section hidden">
+        <h2>Edit Post</h2>
+        <form id="edit-post-form" onsubmit="handleUpdatePost(event)">
+            <input type="hidden" id="edit-post-id">
+            <div class="form-group">
+                <label for="edit-post-title">Title</label>
+                <input type="text" id="edit-post-title" required>
+            </div>
+            <div class="form-group">
+                <label for="edit-post-content">Content</label>
+                <textarea id="edit-post-content" required></textarea>
+            </div>
+            <button type="submit" class="btn-primary">Update Post</button>
+            <button type="button" class="btn-secondary" onclick="cancelEdit()">Cancel</button>
+        </form>
+    </div>
+
+    <div class="section">
+        <h2>Posts</h2>
+        <div id="loading">Loading posts...</div>
+        <div id="posts-list"></div>
+    </div>
+
+    <script type="module">
+        import init, { BlogApp } from './pkg/blog_wasm.js';
+
+        let app;
+        let currentUserId = null;
+
+        window.showAuthTab = function(tab) {
+            document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (tab === 'login') {
+                document.getElementById('login-form').classList.remove('hidden');
+                document.getElementById('register-form').classList.add('hidden');
+            } else {
+                document.getElementById('login-form').classList.add('hidden');
+                document.getElementById('register-form').classList.remove('hidden');
+            }
+        };
+
+        window.showMessage = function(text, isError = false) {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.className = 'message ' + (isError ? 'error' : 'success');
+            msg.classList.remove('hidden');
+            setTimeout(() => msg.classList.add('hidden'), 3000);
+        };
+
+        window.updateUI = function() {
+            const isAuth = app.is_authenticated();
+            const authSection = document.getElementById('auth-section');
+            const createSection = document.getElementById('create-post-section');
+            const logoutBtn = document.getElementById('logout-btn');
+            const userInfo = document.getElementById('user-info');
+
+            if (isAuth) {
+                authSection.classList.add('hidden');
+                createSection.classList.remove('hidden');
+                logoutBtn.classList.remove('hidden');
+
+                try {
+                    const user = app.current_user();
+                    if (user && user.username) {
+                        userInfo.textContent = user.username;
+                        currentUserId = user.user_id;
+                    }
+                } catch (e) {
+                    userInfo.textContent = '';
+                }
+            } else {
+                authSection.classList.remove('hidden');
+                createSection.classList.add('hidden');
+                logoutBtn.classList.add('hidden');
+                userInfo.textContent = '';
+                currentUserId = null;
+            }
+
+            loadPosts();
+        };
+
+        window.handleLogin = async function(event) {
+            event.preventDefault();
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+
+            try {
+                await app.login(username, password);
+                showMessage('Login successful!');
+                updateUI();
+            } catch (e) {
+                showMessage('Login failed: ' + e, true);
+            }
+        };
+
+        window.handleRegister = async function(event) {
+            event.preventDefault();
+            const username = document.getElementById('register-username').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+
+            try {
+                await app.register(username, email, password);
+                showMessage('Registration successful!');
+                updateUI();
+            } catch (e) {
+                showMessage('Registration failed: ' + e, true);
+            }
+        };
+
+        window.logout = function() {
+            app.logout();
+            showMessage('Logged out');
+            updateUI();
+        };
+
+        window.loadPosts = async function() {
+            const loading = document.getElementById('loading');
+            const postsList = document.getElementById('posts-list');
+
+            try {
+                const data = await app.load_posts();
+                loading.classList.add('hidden');
+                postsList.innerHTML = '';
+
+                if (data.posts.length === 0) {
+                    postsList.innerHTML = '<p>No posts yet.</p>';
+                    return;
+                }
+
+                data.posts.forEach(post => {
+                    const div = document.createElement('div');
+                    div.className = 'post';
+
+                    const isOwner = currentUserId && post.author_id === currentUserId;
+                    const actionsHtml = isOwner ? `
+                        <div class="post-actions">
+                            <button class="btn-secondary" onclick="editPost(${post.id}, '${escapeHtml(post.title)}', '${escapeHtml(post.content)}')">Edit</button>
+                            <button class="btn-danger" onclick="deletePost(${post.id})">Delete</button>
+                        </div>
+                    ` : '';
+
+                    div.innerHTML = `
+                        <h3>${escapeHtml(post.title)}</h3>
+                        <div class="post-meta">By ${escapeHtml(post.author_username)} on ${new Date(post.created_at).toLocaleDateString()}</div>
+                        <div class="post-content">${escapeHtml(post.content)}</div>
+                        ${actionsHtml}
+                    `;
+                    postsList.appendChild(div);
+                });
+            } catch (e) {
+                loading.textContent = 'Failed to load posts';
+                console.error(e);
+            }
+        };
+
+        window.handleCreatePost = async function(event) {
+            event.preventDefault();
+            const title = document.getElementById('post-title').value;
+            const content = document.getElementById('post-content').value;
+
+            try {
+                await app.create_post(title, content);
+                showMessage('Post created!');
+                document.getElementById('post-title').value = '';
+                document.getElementById('post-content').value = '';
+                loadPosts();
+            } catch (e) {
+                showMessage('Failed to create post: ' + e, true);
+            }
+        };
+
+        window.editPost = function(id, title, content) {
+            document.getElementById('edit-post-id').value = id;
+            document.getElementById('edit-post-title').value = title;
+            document.getElementById('edit-post-content').value = content;
+            document.getElementById('edit-post-section').classList.remove('hidden');
+            document.getElementById('create-post-section').classList.add('hidden');
+        };
+
+        window.cancelEdit = function() {
+            document.getElementById('edit-post-section').classList.add('hidden');
+            document.getElementById('create-post-section').classList.remove('hidden');
+        };
+
+        window.handleUpdatePost = async function(event) {
+            event.preventDefault();
+            const id = parseInt(document.getElementById('edit-post-id').value);
+            const title = document.getElementById('edit-post-title').value;
+            const content = document.getElementById('edit-post-content').value;
+
+            try {
+                await app.update_post(id, title, content);
+                showMessage('Post updated!');
+                cancelEdit();
+                loadPosts();
+            } catch (e) {
+                showMessage('Failed to update post: ' + e, true);
+            }
+        };
+
+        window.deletePost = async function(id) {
+            if (!confirm('Are you sure you want to delete this post?')) return;
+
+            try {
+                await app.delete_post(id);
+                showMessage('Post deleted!');
+                loadPosts();
+            } catch (e) {
+                showMessage('Failed to delete post: ' + e, true);
+            }
+        };
+
+        window.escapeHtml = function(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        };
+
+        async function main() {
+            await init();
+            app = new BlogApp();
+            updateUI();
+        }
+
+        main();
+    </script>
+</body>
+</html>

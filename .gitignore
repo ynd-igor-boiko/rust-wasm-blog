@@ -1,0 +1,9 @@
+target/
+.env
+.blog_token
+Cargo.lock
+*.swp
+*.swo
+.DS_Store
+pkg/
+node_modules/
