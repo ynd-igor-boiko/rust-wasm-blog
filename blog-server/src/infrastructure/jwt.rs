@@ -25,7 +25,7 @@ impl JwtService {
         }
     }
 
-    pub fn generate_token(&self, user_id: i64, username: &str) -> Result<String, DomainError> {
+    pub fn generate_token(&self, user_id: i64, username: &str) -> Result<String /* посмотри про типизированное программирование, у просто строчки неограниченный конеткст использования в отличии от типа который ты сам можеш обернуть вокруг не1 */, DomainError> {
         let expiration = Utc::now()
             .checked_add_signed(Duration::hours(24))
             .ok_or_else(|| DomainError::InternalError("Failed to calculate expiration".into()))?
