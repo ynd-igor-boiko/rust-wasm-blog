@@ -18,7 +18,7 @@ pub enum DomainError {
     Forbidden,
 
     #[error("{0}")]
-    InvalidInput(String),
+    InvalidInput(String), // когда даботаеш со строчками и не планируещ их мутировать (длинну) то можеш выразить это как тип Box<str
 
     #[error("db error: {0}")]
     DatabaseError(String),
